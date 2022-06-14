@@ -1,9 +1,12 @@
-# version: 2.1
+version: 2.1
 
-# orbs: 
-#   aws-ecr: circleci/aws-ecr@8.1.2
+orbs: 
+  aws-ecr: circleci/aws-ecr@8.1.2
 
-# workflows:
-#   build_and_push_image:
-#     jobs:
-#       aws-ecr/build-and-push-image:
+workflows:
+  build_and_push_image:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          create-repo: true
+          repo: nginx-hello-world-app
+          tag: 'latest,$CIRCLE_WORKFLOW_ID'
