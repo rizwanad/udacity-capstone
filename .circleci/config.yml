@@ -1,7 +1,22 @@
 version: 2.1
 
 orbs: 
+  kubernetes: circleci/kubernetes@1.3.0
   aws-ecr: circleci/aws-ecr@8.1.2
+  aws-eks: circleci/aws-eks@2.2.0
+
+jobs:
+  deploy-image:
+    docker: 
+      - image: ubuntu:20.04
+    steps:
+      - checkout
+      - run:
+          name: Apply parameters to kubernetes deployment script
+          command: |
+            sed "s/<AWS_ECR_REGISTRY_ID>/$AWS_ECR_REGISTRY_ID/1" .circleci/eks/deployment-template.yaml | \
+              sed "s/<TAG>/$CIRCLE_WORKFLOW_ID/1" > .circleci/eks/deployment.yaml              
+            cat .circleci/eks/deployment.yaml
 
 workflows:
   build_and_push_image:
@@ -10,3 +25,5 @@ workflows:
           create-repo: true
           repo: nginx-hello-world-app
           tag: 'latest,$CIRCLE_WORKFLOW_ID'
+      - deploy-image:
+          requires: [aws-ecr/build-and-push-image]
