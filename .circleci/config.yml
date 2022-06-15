@@ -18,6 +18,11 @@ jobs:
               sed "s/<TAG>/$CIRCLE_WORKFLOW_ID/1" > .circleci/eks/deployment.yaml              
             cat .circleci/eks/deployment.yaml
 
+      - run:
+          name: Install dependencies
+          command: |
+            apt update
+            apt install -y curl unzip
       - kubernetes/install-kubectl
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: nginxHelloWorldApp
