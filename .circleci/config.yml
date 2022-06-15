@@ -6,6 +6,21 @@ orbs:
   aws-eks: circleci/aws-eks@2.2.0
 
 jobs:
+  lint:
+    docker:
+      - image: alpine
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+      - run:
+          name: Run lint
+          command: |
+            hadolint Dockerfile
+
   deploy-image:
     docker: 
       - image: ubuntu:20.04
@@ -35,9 +50,12 @@ jobs:
 workflows:
   build_and_push_image:
     jobs:
+      - lint
       - aws-ecr/build-and-push-image:
           create-repo: true
           repo: nginx-hello-world-app
           tag: 'latest,$CIRCLE_WORKFLOW_ID'
+          
+          requires: [lint]
       - deploy-image:
           requires: [aws-ecr/build-and-push-image]
