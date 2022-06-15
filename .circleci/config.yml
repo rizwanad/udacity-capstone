@@ -18,6 +18,15 @@ jobs:
               sed "s/<TAG>/$CIRCLE_WORKFLOW_ID/1" > .circleci/eks/deployment.yaml              
             cat .circleci/eks/deployment.yaml
 
+      - kubernetes/install-kubectl
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: nginxHelloWorldApp
+          aws-region: $AWS_REGION
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: .circleci/eks/deployment.yaml
+          resource-name: deployment/nginx-hello-world-app
+          show-kubectl-command: true
 workflows:
   build_and_push_image:
     jobs:
